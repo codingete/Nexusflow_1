@@ -7,6 +7,9 @@ import { errorMiddleware } from "./middlewares/error.js";
 import authRouter from "./router/userRoutes.js";
 import adminRouter from "./router/adminRoutes.js";
 import studentRouter from "./router/studentRoutes.js";
+import notificationRouter from "./router/notificationRoutes.js";
+import feedbackRouter from "./router/feedbackRoutes.js";
+import projectRouter from "./router/projectRoutes.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
@@ -44,6 +47,9 @@ connectDB();
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/student", studentRouter);
+app.use("/api/v1", notificationRouter);
+app.use("/api/v1/student", feedbackRouter);
+app.use("/api/v1/projects", projectRouter);
 
 // Error middleware
 app.use(errorMiddleware);

@@ -5,16 +5,42 @@ const popupSlice = createSlice({
   initialState: {
     isCreateStudentModalOpen: false,
     isCreateTeacherModalOpen: false,
+    isCreateProjectModalOpen: false,
+    isCreateDeadlineModalOpen: false,
+    isProfileModalOpen: false,
   },
   reducers: {
-    toggleStudentModal(state) {   // ✅ renamed to match ManageStudents.jsx
+    toggleStudentModal: (state) => {
       state.isCreateStudentModalOpen = !state.isCreateStudentModalOpen;
     },
-    toggleTeacherModal(state) {   // ✅ renamed to match AddTeacher.jsx
+    toggleTeacherModal: (state) => {
       state.isCreateTeacherModalOpen = !state.isCreateTeacherModalOpen;
+    },
+    toggleProjectModal: (state) => {
+      state.isCreateProjectModalOpen = !state.isCreateProjectModalOpen;
+    },
+    toggleDeadlineModal: (state) => {
+      state.isCreateDeadlineModalOpen = !state.isCreateDeadlineModalOpen;
+    },
+    toggleProfileModal: (state) => {
+      state.isProfileModalOpen = !state.isProfileModalOpen;
+    },
+    closeAllModals: (state) => {
+      state.isCreateStudentModalOpen = false;
+      state.isCreateTeacherModalOpen = false;
+      state.isCreateProjectModalOpen = false;
+      state.isCreateDeadlineModalOpen = false;
+      state.isProfileModalOpen = false;
     },
   },
 });
 
-export const { toggleStudentModal, toggleTeacherModal } = popupSlice.actions;
+export const {
+  toggleStudentModal,
+  toggleTeacherModal,
+  toggleProjectModal,
+  toggleDeadlineModal,
+  toggleProfileModal,
+  closeAllModals,
+} = popupSlice.actions;
 export default popupSlice.reducer;

@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { toggleTeacherModal } from "../../store/slices/popupSlice";
+import { LABELS, DEPARTMENT_OPTIONS } from "../../constants/labels";
 
 const ManageTeachers = () => {
   const { users } = useSelector((state) => state.admin);
@@ -121,9 +122,9 @@ const ManageTeachers = () => {
       <div className="card">
         <div className="card-header flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
-            <h1 className="card-title">Manage Teachers</h1>
+            <h1 className="card-title">{LABELS.TEACHERS.TITLE}</h1>
             <p className="card-subtitle">
-              Add, edit, and manage teacher accounts
+              {LABELS.TEACHERS.SUBTITLE}
             </p>
           </div>
 
@@ -132,7 +133,7 @@ const ManageTeachers = () => {
             className="btn-primary flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
-            <span>Add New Teacher</span>
+            <span>{LABELS.TEACHERS.ADD_NEW}</span>
           </button>
         </div>
       </div>
@@ -142,7 +143,7 @@ const ManageTeachers = () => {
         <div className="card flex items-center p-4">
           <Users className="w-6 h-6 text-blue-600" />
           <div className="ml-4">
-            <p className="text-sm text-slate-600">Total Teachers</p>
+            <p className="text-sm text-slate-600">{LABELS.TEACHERS.TITLE.replace("Manage ", "")}</p>
             <p className="text-lg font-semibold">{teachers.length}</p>
           </div>
         </div>
@@ -182,11 +183,11 @@ const ManageTeachers = () => {
         <div className="flex  flex-col md:flex-row gap-4">
           <div className="flex-1">
   <label className="block text-sm font-medium text-slate-700 mb-2">
-    Search Teachers
+    {LABELS.TEACHERS.SEARCH_TEACHERS}
     </label>
           <input
             type="text"
-            placeholder="Search by name or email..."
+            placeholder={LABELS.TEACHERS.SEARCH_BY_NAME_EMAIL || "Search by name or email..."}
             className="input-field w-full"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -194,14 +195,14 @@ const ManageTeachers = () => {
 </div>
 <div className="w-full md:w-48">
   <label className="block text-sm font-medium text-slate-700 mb-2">
-    Filter Status
+    {LABELS.TEACHERS.FILTER_DEPARTMENT}
     </label>
           <select
            className="input-field w-full"
             value={filterDepartment}
             onChange={(e) => setFilterDepartment(e.target.value)}
           >
-            <option value="all">All Departments</option>
+            <option value="all">{LABELS.STUDENTS.ALL_DEPARTMENTS}</option>
             {departments.map((dept) => (
               <option key={dept}>{dept}</option>
             ))}
@@ -213,7 +214,7 @@ const ManageTeachers = () => {
       {/* TEACHERS TABLE */}
       <div className="card">
         <div className="card-header">
-          <h2 className="card-title">Teachers List</h2>
+          <h2 className="card-title">{LABELS.TEACHERS.TEACHERS_LIST}</h2>
         </div>
 
         <div className="overflow-x-auto">
@@ -221,11 +222,11 @@ const ManageTeachers = () => {
             <table className="min-w-full">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Teacher Info</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Department</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Expertise</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Join Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.TEACHERS.TEACHER_INFO}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.TEACHERS.DEPARTMENT}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.TEACHERS.EXPERTISE}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.STUDENTS.DATE}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.COMMON.ACTIONS}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
@@ -260,14 +261,14 @@ const ManageTeachers = () => {
               onClick={() => handleEdit(teacher)}
               className="text-blue-600 hover:text-blue-900"
             >
-              Edit
+              {LABELS.COMMON.EDIT}
             </button>
 
             <button
               onClick={() => handleDelete(teacher)}
               className="text-red-600 hover:text-red-900"
             >
-              Delete
+              {LABELS.COMMON.DELETE}
             </button>
           </div>
         </td>
@@ -279,7 +280,7 @@ const ManageTeachers = () => {
           ) : (
             filteredTeachers.length ===0 &&(
             <div className="text-center py-8 text-slate-500">
-              No teachers found matching your criteria.
+              {LABELS.TEACHERS.NO_TEACHERS_FOUND}
             </div>
           ))}
         </div>
@@ -292,7 +293,7 @@ const ManageTeachers = () => {
     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-slate-900">
-          Edit Teacher
+          {LABELS.TEACHERS.EDIT_TEACHER}
         </h3>
         <button
           onClick={handleCloseModal}
@@ -303,7 +304,7 @@ const ManageTeachers = () => {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          Full Name
+          {LABELS.TEACHERS.NAME}
         </label>
         <input
           type="text"
@@ -316,7 +317,7 @@ const ManageTeachers = () => {
 
           <div>
   <label className="block text-sm font-medium text-slate-700 mb-1">
-    Email
+    {LABELS.TEACHERS.EMAIL}
   </label>
   <input
     type="email"
@@ -330,26 +331,19 @@ const ManageTeachers = () => {
 </div>
 <div>
   <label className="block text-sm font-medium text-slate-700 mb-1">
-    Department
+    {LABELS.TEACHERS.DEPARTMENT}
   </label>
   <select className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
-required
-value={formData.department}
-onChange={(e) => {
-  setFormData({ ...formData, department: e.target.value })
-}}
->
-<option value="Computer Science">Computer Science</option>
-<option value="Software Engineering">Software Engineering</option>
-<option value="Information Technology">Information Technology</option>
-<option value="Data Science">Data Science"</option>
-<option value="Electrical Engineering">Electrical Engineering</option>
-<option value="Mechanical Engineering">Mechanical Engineering</option>
-<option value="Civil Engineering">Civil Engineering</option>
-<option value="Business Administration">Business Administration</option>
-<option value="Economics">Economics</option>
-<option value="Psychology">Psychology</option>
- </select>
+ required
+ value={formData.department}
+ onChange={(e) => {
+   setFormData({ ...formData, department: e.target.value })
+ }}
+ >
+ {DEPARTMENT_OPTIONS.map((dept) => (
+   <option key={dept} value={dept}>{dept}</option>
+ ))}
+  </select>
 </div>
 
 
@@ -403,10 +397,10 @@ onChange={(e) =>
     onClick={handleCloseModal}
     className="btn-danger"
   >
-    Cancel
+    {LABELS.COMMON.CANCEL}
   </button>
   <button type="submit" className="btn-primary">
-    Update Teacher
+    {LABELS.COMMON.SUBMIT}
   </button>
 </div>
       </form>
@@ -428,24 +422,20 @@ onChange={(e) =>
 
             <div className="text-center">
               <h1 className="text-lg font-medium text-slate-900 mb-2">
-                Delete Teacher
+                {LABELS.TEACHERS.DELETE_TEACHER}
               </h1>
 
               <p className="text-sm text-slate-500 mb-4">
-                Are you sure you want to delete{" "}
-                <span className="font-medium text-slate-900">
-                  {teacherToDelete.name}
-                </span>
-                ? This action cannot be undone.
+                {LABELS.TEACHERS.CONFIRM_DELETE}
               </p>
 
               <div className="flex justify-center space-x-3">
                 <button onClick={cancelDelete} className="btn-secondary">
-                  Cancel
+                  {LABELS.COMMON.CANCEL}
                 </button>
 
                 <button onClick={confirmDelete} className="btn-danger">
-                  Delete
+                  {LABELS.COMMON.DELETE}
                 </button>
               </div>
             </div>

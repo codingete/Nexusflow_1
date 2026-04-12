@@ -10,8 +10,8 @@ export const login = createAsyncThunk("login", async (data, thunkAPI) => {
     toast.success(res.data.message);
     return res.data.user;
   } catch (error) {
-    toast.error(error.response.data.message);
-    return thunkAPI.rejectWithValue(error.response.data.message);
+    toast.error(error.response?.data?.message);
+    return thunkAPI.rejectWithValue(error.response?.data?.message);
   }
 });
 
@@ -23,8 +23,8 @@ export const forgotPassword = createAsyncThunk(
       toast.success(res.data.message);
       return null;
     } catch (error) {
-      toast.error(error.response.data.message);
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      toast.error(error.response?.data?.message);
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
     }
   }
 );
@@ -40,9 +40,9 @@ export const resetPassword = createAsyncThunk(
       toast.success(res.data.message);
       return res.data.user;
     } catch (error) {
-      toast.error(error.response.data.message || "Failed to reset password");
+      toast.error(error.response?.data?.message || "Failed to reset password");
       return thunkAPI.rejectWithValue(
-        error.response.data.message || "Failed to reset password"
+        error.response?.data?.message || "Failed to reset password"
       );
     }
   }
@@ -54,7 +54,7 @@ export const getUser = createAsyncThunk("auth/me", async (_, thunkAPI) => {
     return res.data.user;
   } catch (error) {
     return thunkAPI.rejectWithValue(
-      error.response.data.message || "Failed to fetch user"
+      error.response?.data?.message || "Failed to fetch user"
     );
   }
 });
@@ -64,14 +64,13 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
     await axiosInstance.get(`/auth/logout`);
     return null;
   } catch (error) {
-    toast.error(error.response.data.message || "Failed to logout");
+    toast.error(error.response?.data?.message || "Failed to logout");
     return thunkAPI.rejectWithValue(
-      error.response.data.message || "Failed to logout"
+      error.response?.data?.message || "Failed to logout"
     );
   }
 });
 
-// ✅ Added getAllUsers thunk
 export const getAllUsers = createAsyncThunk(
   "auth/getAllUsers",
   async (_, thunkAPI) => {
@@ -79,7 +78,7 @@ export const getAllUsers = createAsyncThunk(
       const res = await axiosInstance.get("/admin/users", {
         credentials: "include",
       });
-      return res.data.users; // assuming backend returns { users: [...] }
+      return res.data.users;
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch users");
       return thunkAPI.rejectWithValue(

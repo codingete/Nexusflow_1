@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Sidebar = ({ open, setOpen, userRole }) => {
   const location = useLocation();
+  const { project } = useSelector((state) => state.student);
 
   const getNavigationItems = () => {
     switch (userRole) {
@@ -20,7 +22,7 @@ const Sidebar = ({ open, setOpen, userRole }) => {
             icon: "upload",
           },
           { name: "Supervisor", path: "/student/supervisor", icon: "user" },
-          { name: "Feedback", path: "/student/feedback", icon: "chat" },
+          { name: "Feedback", path: project?._id ? `/student/feedback/${project._id}` : "/student/feedback", icon: "chat" },
           {
             name: "Notifications",
             path: "/student/notifications",

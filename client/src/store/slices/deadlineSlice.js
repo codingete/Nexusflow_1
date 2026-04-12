@@ -2,17 +2,69 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
 
-// Async thunk for creating deadlines
 export const createDeadline = createAsyncThunk(
   "deadline/create",
-  async (data, { rejectWithValue }) => {
+  async (data, thunkAPI) => {
     try {
-      const response = await axiosInstance.post("/deadlines", data);
+      const res = await axiosInstance.post("/deadlines", data);
       toast.success("Deadline created!");
-      return response.data;
+      return res.data.data;
     } catch (error) {
-      toast.error("Failed to create deadline");
-      return rejectWithValue(error.response?.data || "Error creating deadline");
+      toast.error(error.response?.data?.message || "Failed to create deadline");
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+export const fetchDeadlines = createAsyncThunk(
+  "deadline/fetchAll",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/deadlines");
+      return res.data.data?.deadlines;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch deadlines");
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+export const updateDeadline = createAsyncThunk(
+  "deadline/update",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const res = await axiosInstance.put(`/deadlines/${id}`, data);
+      toast.success("Deadline updated!");
+      return res.data.data;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update deadline");
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+export const deleteDeadline = createAsyncThunk(
+  "deadline/delete",
+  async (id, thunkAPI) => {
+    try {
+      const res = await axiosInstance.delete(`/deadlines/${id}`);
+      toast.success("Deadline deleted!");
+      return id;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete deadline");
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+export const fetchNearbyDeadlines = createAsyncThunk(
+  "deadline/fetchNearby",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/deadlines/nearby");
+      return res.data.data?.deadlines;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
     }
   }
 );
@@ -26,7 +78,14 @@ const deadlineSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearDeadlineError: (state) => {
+      state.error = null;
+    },
+    setSelectedDeadline: (state, action) => {
+      state.selected = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createDeadline.pending, (state) => {
@@ -34,13 +93,40 @@ const deadlineSlice = createSlice({
       })
       .addCase(createDeadline.fulfilled, (state, action) => {
         state.loading = false;
-        state.deadlines.push(action.payload);
+        if (state.deadlines) state.deadlines.push(action.payload);
       })
       .addCase(createDeadline.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchDeadlines.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDeadlines.fulfilled, (state, action) => {
+        state.loading = false;
+        state.deadlines = action.payload;
+      })
+      .addCase(fetchDeadlines.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateDeadline.fulfilled, (state, action) => {
+        if (state.deadlines) {
+          state.deadlines = state.deadlines.map((d) =>
+            d._id === action.payload._id ? { ...d, ...action.payload } : d
+          );
+        }
+      })
+      .addCase(deleteDeadline.fulfilled, (state, action) => {
+        if (state.deadlines) {
+          state.deadlines = state.deadlines.filter((d) => d._id !== action.payload);
+        }
+      })
+      .addCase(fetchNearbyDeadlines.fulfilled, (state, action) => {
+        state.nearby = action.payload;
       });
   },
 });
 
+export const { clearDeadlineError, setSelectedDeadline } = deadlineSlice.actions;
 export default deadlineSlice.reducer;

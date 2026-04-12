@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { submitProjectProposal } from "../../store/slices/studentsSlice";
+import { submitProjectProposal } from "../../store/slices/studentSlice";
 
 const SubmitProposal = () => {
   const [formData, setFormData] = useState({

@@ -3,8 +3,14 @@ import multer from "multer";
 import {
   getAvailableSupervisors,
   getStudentProject,
+  getProjectById,
+  getSupervisor,
+  requestSupervisor,
   submitProposal,
   uploadFiles,
+  getMyRequests,
+  getDashboardStats,
+  downloadFile,
 } from "../controllers/studentController.js";
 import { isAuthenticated, isAuthorized } from "../middlewares/authMiddleware.js";
 
@@ -34,11 +40,18 @@ const handleUploadError = (err, req, res, next) => {
   next();
 };
 
-router.post(
+router.get(
   "/project",
   isAuthenticated,
   isAuthorized("Student"),
   getStudentProject
+);
+
+router.get(
+  "/project/:projectId",
+  isAuthenticated,
+  isAuthorized("Student"),
+  getProjectById
 );
 
 router.post(
@@ -49,7 +62,7 @@ router.post(
 );
 
 router.post(
-  "/upload-projectid",
+  "/upload/:projectId",
   isAuthenticated,
   isAuthorized("Student"),
   upload.array("files", 10),
@@ -62,6 +75,41 @@ router.get(
   isAuthenticated,
   isAuthorized("Student"),
   getAvailableSupervisors
+);
+
+router.get(
+  "/supervisor",
+  isAuthenticated,
+  isAuthorized("Student"),
+  getSupervisor
+);
+
+router.post(
+  "/request-supervisor",
+  isAuthenticated,
+  isAuthorized("Student"),
+  requestSupervisor
+);
+
+router.get(
+  "/my-requests",
+  isAuthenticated,
+  isAuthorized("Student"),
+  getMyRequests
+);
+
+router.get(
+  "/fetch-dashboard-stats",
+  isAuthenticated,
+  isAuthorized("Student"),
+  getDashboardStats
+);
+
+router.get(
+  "/:projectId/files/:fileId/download",
+  isAuthenticated,
+  isAuthorized("Admin", "Teacher", "Student"),
+  downloadFile
 );
 
 export default router;

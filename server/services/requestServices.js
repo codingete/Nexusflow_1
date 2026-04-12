@@ -16,3 +16,10 @@ export const createRequest = async (requestData) => {
   const request = await SupervisorRequest.create(requestData);
   return await request.save();
 };
+
+export const getRequestsByStudent = async (studentId) => {
+  return await SupervisorRequest.find({ student: studentId })
+    .populate("supervisor", "name email department expertise")
+    .sort({ createdAt: -1 })
+    .lean();
+};

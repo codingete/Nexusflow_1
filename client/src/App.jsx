@@ -121,7 +121,7 @@ const App = () => {
 <Route path="submit-proposal" element={<SubmitProposal />} />
 <Route path="upload-files" element={<UploadFiles />} />
 <Route path="supervisor" element={<SupervisorPage />} />
-<Route path="feedback" element={<FeedbackPage />} />
+<Route path="feedback/:projectId" element={<FeedbackPage />} />
 <Route path="notifications" element={<NotificationsPage  />} />
 
       </Routes>

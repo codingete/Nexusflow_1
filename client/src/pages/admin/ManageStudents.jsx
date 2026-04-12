@@ -9,6 +9,7 @@ import {
 } from "../../store/slices/adminSlice";
 import { AlertTriangle, CheckCircle, Plus, Users, TriangleAlert, X } from "lucide-react";
 import { toggleStudentModal } from "../../store/slices/popupSlice";
+import { LABELS, DEPARTMENT_OPTIONS } from "../../constants/labels";
 
 const ManageStudents = () => {
   const { users, projects } = useSelector((state) => state.admin);
@@ -116,9 +117,9 @@ const ManageStudents = () => {
       <div className="card">
         <div className="card-header flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
-            <h1 className="card-title">Manage Students</h1>
+            <h1 className="card-title">{LABELS.STUDENTS.TITLE}</h1>
             <p className="card-subtitle">
-              Add, edit, and manage student accounts
+              {LABELS.STUDENTS.SUBTITLE}
             </p>
           </div>
 
@@ -127,7 +128,7 @@ const ManageStudents = () => {
             className="btn-primary flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
-            <span>Add New Student</span>
+            <span>{LABELS.STUDENTS.ADD_NEW}</span>
           </button>
         </div>
       </div>
@@ -137,7 +138,7 @@ const ManageStudents = () => {
         <div className="card flex items-center p-4">
           <Users className="w-6 h-6 text-blue-600" />
           <div className="ml-4">
-            <p className="text-sm text-slate-600">Total Students</p>
+            <p className="text-sm text-slate-600">{LABELS.STUDENTS.TOTAL_STUDENTS}</p>
             <p className="text-lg font-semibold">{students.length}</p>
           </div>
         </div>
@@ -148,7 +149,7 @@ const ManageStudents = () => {
               <CheckCircle className="w-6 h-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-slate-600">Completed Projects</p>
+              <p className="text-sm text-slate-600">{LABELS.STUDENTS.COMPLETED_PROJECTS}</p>
               <p className="text-lg font-semibold text-slate-800">
                 {students.filter((s) => s.projectStatus === "completed").length}
               </p>
@@ -162,7 +163,7 @@ const ManageStudents = () => {
               <TriangleAlert className="w-6 h-6 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-slate-600">Unassigned</p>
+              <p className="text-sm text-slate-600">{LABELS.STUDENTS.UNASSIGNED}</p>
               <p className="text-lg font-semibold text-slate-800">
                 {students.filter((s) => !s.supervisor).length}
               </p>
@@ -176,11 +177,11 @@ const ManageStudents = () => {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Search Students
+              {LABELS.STUDENTS.SEARCH_STUDENTS}
             </label>
             <input
               type="text"
-              placeholder="Search by name or email..."
+              placeholder={LABELS.STUDENTS.SEARCH_BY_NAME_EMAIL}
               className="input-field w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -189,14 +190,14 @@ const ManageStudents = () => {
 
           <div className="w-full md:w-48">
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Filter Status
+              {LABELS.STUDENTS.FILTER_STATUS}
             </label>
             <select
               className="input-field w-full"
               value={filterDepartment}
               onChange={(e) => setFilterDepartment(e.target.value)}
             >
-              <option value="all">All Departments</option>
+              <option value="all">{LABELS.STUDENTS.ALL_DEPARTMENTS}</option>
               {departments.map((dept) => (
                 <option key={dept}>{dept}</option>
               ))}
@@ -207,8 +208,8 @@ const ManageStudents = () => {
 
       {/* STUDENTS TABLE */}
       <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Students List</h2>
+          <div className="card-header">
+          <h2 className="card-title">{LABELS.STUDENTS.STUDENTS_LIST}</h2>
         </div>
 
         <div className="overflow-x-auto">
@@ -216,11 +217,11 @@ const ManageStudents = () => {
             <table className="min-w-full">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Student Info</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Department & Year</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Supervisor</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Project Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.STUDENTS.STUDENT_INFO}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.STUDENTS.DEPARTMENT_YEAR}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.STUDENTS.SUPERVISOR}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.STUDENTS.PROJECT_TITLE}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">{LABELS.COMMON.ACTIONS}</th>
                 </tr>
               </thead>
 
@@ -240,6 +241,7 @@ const ManageStudents = () => {
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap">
+                        {typeof student.supervisor} 
                         <div className="text-sm text-slate-900">
                           {student.department || "-"}
                         </div>
@@ -260,8 +262,8 @@ const ManageStudents = () => {
                         ) : (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-red-800 bg-gray-100 text-xs font-medium">
                             {student.projectStatus === "rejected"
-                              ? "Rejected"
-                              : "Not Assigned"}
+                              ? LABELS.STUDENTS.REJECTED
+                              : LABELS.STUDENTS.NOT_ASSIGNED}
                           </span>
                         )}
                       </td>
@@ -278,14 +280,14 @@ const ManageStudents = () => {
                             onClick={() => handleEdit(student)}
                             className="text-blue-600 hover:text-blue-900"
                           >
-                            Edit
+                            {LABELS.COMMON.EDIT}
                           </button>
 
                           <button
                             onClick={() => handleDelete(student)}
                             className="text-red-600 hover:text-red-900"
                           >
-                            Delete
+                            {LABELS.COMMON.DELETE}
                           </button>
                         </div>
                       </td>
@@ -297,7 +299,7 @@ const ManageStudents = () => {
           ) : (
             filteredStudents.length ===0 &&(
             <div className="text-center py-8 text-slate-500">
-              No students found matching your criteria.
+              {LABELS.STUDENTS.NO_STUDENTS_FOUND}
             </div>
           ))}
         </div>
@@ -310,7 +312,7 @@ const ManageStudents = () => {
     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-slate-900">
-          Edit Student
+          {LABELS.STUDENTS.EDIT_STUDENT}
         </h3>
         <button
           onClick={handleCloseModal}
@@ -321,7 +323,7 @@ const ManageStudents = () => {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          Full Name
+          {LABELS.STUDENTS.FULL_NAME}
         </label>
         <input
           type="text"
@@ -334,7 +336,7 @@ const ManageStudents = () => {
 
           <div>
   <label className="block text-sm font-medium text-slate-700 mb-1">
-    Email
+    {LABELS.STUDENTS.EMAIL}
   </label>
   <input
     type="email"
@@ -348,26 +350,19 @@ const ManageStudents = () => {
 </div>
 <div>
   <label className="block text-sm font-medium text-slate-700 mb-1">
-    Department
+    {LABELS.STUDENTS.DEPARTMENT}
   </label>
   <select className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
-required
-value={formData.department}
-onChange={(e) => {
-  setFormData({ ...formData, department: e.target.value })
-}}
->
-<option value="Computer Science">Computer Science</option>
-<option value="Software Engineering">Software Engineering</option>
-<option value="Information Technology">Information Technology</option>
-<option value="Data Science">Data Science"</option>
-<option value="Electrical Engineering">Electrical Engineering</option>
-<option value="Mechanical Engineering">Mechanical Engineering</option>
-<option value="Civil Engineering">Civil Engineering</option>
-<option value="Business Administration">Business Administration</option>
-<option value="Economics">Economics</option>
-<option value="Psychology">Psychology</option>
- </select>
+ required
+ value={formData.department}
+ onChange={(e) => {
+   setFormData({ ...formData, department: e.target.value })
+ }}
+ >
+ {DEPARTMENT_OPTIONS.map((dept) => (
+   <option key={dept} value={dept}>{dept}</option>
+ ))}
+  </select>
 </div>
 
 <div className="flex justify-end space-x-3 pt-4">
@@ -376,10 +371,10 @@ onChange={(e) => {
     onClick={handleCloseModal}
     className="btn-danger"
   >
-    Cancel
+    {LABELS.COMMON.CANCEL}
   </button>
   <button type="submit" className="btn-primary">
-    Update Student
+    {LABELS.COMMON.SUBMIT}
   </button>
 </div>
       </form>
@@ -389,7 +384,7 @@ onChange={(e) => {
 
 
       {/* DELETE MODAL */}
-      {showDeleteModal && studentToDeleteToDelete && (
+      {showDeleteModal && studentToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
             <div className="flex items-center mb-4">
@@ -400,24 +395,20 @@ onChange={(e) => {
 
             <div className="text-center">
               <h1 className="text-lg font-medium text-slate-900 mb-2">
-                Delete Student
+                {LABELS.STUDENTS.DELETE_STUDENT}
               </h1>
 
               <p className="text-sm text-slate-500 mb-4">
-                Are you sure you want to delete{" "}
-                <span>
-                  {studentToDelete.name}? This action cannot be undone.
-                </span>
-                
+                {LABELS.STUDENTS.CONFIRM_DELETE}
               </p>
 
               <div className="flex justify-center space-x-3">
                 <button onClick={cancelDelete} className="btn-secondary">
-                  Cancel
+                  {LABELS.COMMON.CANCEL}
                 </button>
 
                 <button onClick={confirmDelete} className="btn-danger">
-                  Delete
+                  {LABELS.COMMON.DELETE}
                 </button>
               </div>
             </div>

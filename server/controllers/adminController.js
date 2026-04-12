@@ -1,6 +1,8 @@
-// adminController.js
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import ErrorHandler from "../middlewares/error.js";
+import { User } from "../models/user.js";
+import { Project } from "../models/project.js";
+import { SupervisorRequest } from "../models/supervisorRequest.js";
 import * as userServices from "../services/userServices.js";
 
 // ----------------- STUDENT CONTROLLERS -----------------
@@ -148,5 +150,32 @@ export const getAllProject = asyncHandler(async (req, res, next) => {
 });
 
 export const getDashboardStats = asyncHandler(async (req, res, next) => {
+  const [totalStudents, totalTeachers, totalProjects, projectStatusStats] = await Promise.all([
+    User.countDocuments({ role: "Student" }),
+    User.countDocuments({ role: "Teacher" }),
+    Project.countDocuments(),
+    Project.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]),
+  ]);
 
+  const pendingProjects = projectStatusStats.find((s) => s._id === "pending")?.count || 0;
+
+  res.status(200).json({
+    success: true,
+    data: {
+      stats: {
+        totalStudents,
+        totalTeachers,
+        totalProjects,
+        pendingProjects,
+        projectStatusStats,
+      },
+    },
+  });
 });

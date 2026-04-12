@@ -5,7 +5,8 @@ import {
   updateStudent, 
   updateTeacher, 
   deleteStudent, 
-  deleteTeacher 
+  deleteTeacher,
+  getDashboardStats
 } from "../controllers/adminController.js";
 import { isAuthenticated, isAuthorized } from "../middlewares/authMiddleware.js";
 import { getAllUsers } from "../services/userServices.js";
@@ -62,6 +63,14 @@ router.get(
   isAuthenticated,
   isAuthorized("Admin"),
   getAllUsers
+);
+
+// ----------------- DASHBOARD STATS -----------------
+router.get(
+  "/fetch-dashboard-stats",
+  isAuthenticated,
+  isAuthorized("Admin"),
+  getDashboardStats
 );
 
 export default router;
