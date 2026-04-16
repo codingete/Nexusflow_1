@@ -1,6 +1,6 @@
 import express from "express";
-import { isAuthenticated } from "../middlewares/auth.js";
-import { isAuthorized } from "../middlewares/auth.js";
+import { isAuthenticated } from "../middlewares/authMiddleware.js";
+import { isAuthorized } from "../middlewares/authMiddleware.js";
 import {
     getNotifications,
     markAsRead,

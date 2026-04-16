@@ -10,6 +10,7 @@ import studentRouter from "./router/studentRoutes.js";
 import notificationRouter from "./router/notificationRoutes.js";
 import feedbackRouter from "./router/feedbackRoutes.js";
 import projectRouter from "./router/projectRoutes.js";
+import deadlineRouter from "./router/deadlineRoutes.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
@@ -50,6 +51,7 @@ app.use("/api/v1/student", studentRouter);
 app.use("/api/v1", notificationRouter);
 app.use("/api/v1/student", feedbackRouter);
 app.use("/api/v1/projects", projectRouter);
+app.use("/api/v1/deadline", deadlineRouter);
 
 // Error middleware
 app.use(errorMiddleware);

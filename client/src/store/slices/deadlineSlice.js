@@ -2,16 +2,22 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
 
+
 export const createDeadline = createAsyncThunk(
-  "deadline/create",
-  async (data, thunkAPI) => {
+  "createDeadline",
+  async ({ id, data }, thunkAPI) => {
     try {
-      const res = await axiosInstance.post("/deadlines", data);
-      toast.success("Deadline created!");
-      return res.data.data;
+      const res = await axiosInstance.post(
+        `/deadline/create-deadline/${id}`,
+        data
+      );
+      toast.success(res.data.message || "Deadline updated successfully");
+      return res.data.data?.deadline || res.data.data||res.data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create deadline");
-      return thunkAPI.rejectWithValue(error.response?.data?.message);
+      toast.error(error.response.data.message||"Failed to update or create deadline");
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message
+      );
     }
   }
 );
