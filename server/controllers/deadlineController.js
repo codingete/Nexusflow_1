@@ -27,7 +27,7 @@ project:project||null,
 
 await deadline.populate([
   { path: "createdBy", select: "name email" },
-  { path: "project", select: "title student" }
+  
 ]);
 
 if (project) {

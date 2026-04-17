@@ -2,6 +2,71 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
 
+export const getTeacherDashboardStats = createAsyncThunk(
+  "getTeacherDashboardStats",
+  async (_, thunkAPI) => {
+    try {
+  const res = await axiosInstance.get("/teacher/fetch-dashboard-stats");
+  return res.data.data?.dashboardStats || res.data.data;
+} catch (error) {
+  toast.error(
+    error.response.data.message || "Failed to fetch dashboard stats")
+    
+  return thunkAPI.rejectWithValue(error.response.data.message);
+}
+  }
+);
+
+export const getTeacherRequests = createAsyncThunk(
+  "getTeacherRequests",
+  async (supervisorId, thunkAPI) => {
+    try {
+  const res = await axiosInstance.get(`/teacher/requests?supervisor=${supervisorId}`);
+  return res.data.data?.request || res.data.data;
+} catch (error) {
+  toast.error(
+    error.response.data.message || "Failed to fetch request")
+    
+  return thunkAPI.rejectWithValue(error.response.data.message);
+}
+  }
+);
+
+
+export const acceptRequest = createAsyncThunk(
+  "acceptRequest",
+  async (supervisorId, thunkAPI) => {
+    try {
+  const res = await axiosInstance.get(`/teacher/requests?${requestId}/accept`);
+  return res.data.data?.request || res.data.data;
+} catch (error) {
+  toast.error(
+    error.response.data.message || "Failed to accept request")
+    
+  return thunkAPI.rejectWithValue(error.response.data.message);
+}
+  }
+);
+
+export const rejectRequest = createAsyncThunk(
+  "rejectRequest",
+  async (supervisorId, thunkAPI) => {
+    try {
+  const res = await axiosInstance.get(`/teacher/requests?${requestId}/reject`);
+
+    toast.success(
+    error.response.data.message || "Request reject successfully")
+
+  return res.data.data?.request || res.data.data;
+} catch (error) {
+  toast.error(
+    error.response.data.message || "Failed to reject request")
+    
+  return thunkAPI.rejectWithValue(error.response.data.message);
+}
+  }
+);
+
 export const fetchAssignedStudents = createAsyncThunk(
   "teacher/fetchAssignedStudents",
   async (_, thunkAPI) => {
@@ -105,15 +170,33 @@ const teacherSlice = createSlice({
     dashboardStats: null,
     loading: false,
     error: null,
+    list:[],
   },
   reducers: {
     clearTeacherError: (state) => {
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchAssignedStudents.pending, (state) => {
+ extraReducers: (builder) => {
+  builder.addCase(getTeacherDashboardStats.fulfilled, (state, action) => {
+    state.dashboardStats = action.payload;
+  });
+  builder.addCase(getTeacherRequests.fulfilled, (state, action) => {
+    state.list = action.payload.requests || [];
+  });
+  builder.addCase(acceptRequest.fulfilled, (state, action) => {
+    const updatedRequest = action.payload;
+    state.pendingRequests = state.pendingRequests.map((r) =>
+      r._id === updatedRequest._id ? updatedRequest : r
+    );
+  });
+  builder.addCase(rejectRequest.fulfilled, (state, action) => {
+    const rejectedRequest = action.payload;
+    state.pendingRequests = state.pendingRequests.filter(
+      (r) => r._id !== rejectedRequest._id
+    );
+  });
+      builder.addCase(fetchAssignedStudents.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchAssignedStudents.fulfilled, (state, action) => {

@@ -13,7 +13,7 @@ import { getAllUsers } from "../services/userServices.js";
 
 const router = express.Router();
 
-// ----------------- STUDENT ROUTES -----------------
+
 router.post(
   "/create-student",
   isAuthenticated,
@@ -35,7 +35,7 @@ router.delete(
   deleteStudent
 );
 
-// ----------------- TEACHER ROUTES -----------------
+
 router.post(
   "/create-teacher",
   isAuthenticated,
@@ -57,7 +57,7 @@ router.delete(
   deleteTeacher
 );
 
-// ----------------- GET ALL USERS -----------------
+
 router.get(
   "/users",
   isAuthenticated,
@@ -65,7 +65,7 @@ router.get(
   getAllUsers
 );
 
-// ----------------- DASHBOARD STATS -----------------
+
 router.get(
   "/fetch-dashboard-stats",
   isAuthenticated,
@@ -73,4 +73,6 @@ router.get(
   getDashboardStats
 );
 
+router.get("/users",isAuthenticated,isAuthorized("Admin"),getAllUsers);
+router.post("/assign-supervisor",isAuthenticated,isAuthorized("Admin"),assignSupervisor);
 export default router;

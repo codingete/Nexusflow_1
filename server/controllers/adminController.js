@@ -4,8 +4,9 @@ import { User } from "../models/user.js";
 import { Project } from "../models/project.js";
 import { SupervisorRequest } from "../models/supervisorRequest.js";
 import * as userServices from "../services/userServices.js";
+import * as notificationServices from "../services/notificationServices.js";
 
-// ----------------- STUDENT CONTROLLERS -----------------
+
 export const createStudent = asyncHandler(async (req, res, next) => {
   const { name, email, password, department } = req.body;
 
@@ -31,7 +32,7 @@ export const createStudent = asyncHandler(async (req, res, next) => {
 export const updateStudent = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const updatedData = { ...req.body };
-  delete updatedData.role; // prevent role update
+  delete updatedData.role; 
 
   const user = await userServices.updateUser(id, updatedData);
   if (!user) {
@@ -65,7 +66,7 @@ export const deleteStudent = asyncHandler(async (req, res, next) => {
   });
 });
 
-// ----------------- TEACHER CONTROLLERS -----------------
+
 export const createTeacher = asyncHandler(async (req, res, next) => {
   const { name, email, password, department, maxStudents, expertise } = req.body;
 
@@ -97,7 +98,7 @@ export const createTeacher = asyncHandler(async (req, res, next) => {
 export const updateTeacher = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const updatedData = { ...req.body };
-  delete updatedData.role; // prevent role update
+  delete updatedData.role; 
 
   const user = await userServices.updateUser(id, updatedData);
   if (!user) {
@@ -131,7 +132,7 @@ export const deleteTeacher = asyncHandler(async (req, res, next) => {
   });
 });
 
-// ----------------- OTHER ADMIN CONTROLLERS -----------------
+
 export const getAllUsers = asyncHandler(async (req, res, next) => {
   const users = await userServices.getAllUsers();
   res.status(200).json({
@@ -142,7 +143,62 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
 });
 
 export const assignSupervisor = asyncHandler(async (req, res, next) => {
+  const { studentId, supervisorId } = req.body;
 
+  if (!studentId || !supervisorId) {
+    return next(
+      new ErrorHandler("Student ID and Supervisor ID are required", 400)
+    );
+  }
+
+  const project = await Project.findOne({ student: studentId });
+
+  if (!project) {
+    return next(new ErrorHandler("Project not found", 404));
+  }
+
+  if (project.supervisor != null) {
+    return next(new ErrorHandler("Supervisor already assigned", 400));
+  }
+
+ 
+  if (project.status !== "approved") {
+    return next(
+      new ErrorHandler("Project must be approved before assigning a supervisor", 400)
+    );
+  }
+
+  const { student, supervisor } = await userServices.assignSupervisorDirectly(
+    studentId,
+    supervisorId
+  );
+
+  project.supervisor = supervisor._id;
+  await project.save();
+
+ 
+  await notificationService.notifyUser(
+    studentId,
+    `You have been assigned a supervisor ${supervisor.name}.`,
+    "approval",
+    "/students/status",
+    "low"
+  );
+
+  await notificationService.notifyUser(
+    supervisorId,
+    `The student ${student.name} has been officially assigned to you for FYP supervision.`,
+    "general",
+    "/teachers/status",
+    "low"
+  );
+
+
+  res.status(200).json({
+    success: true,
+    message: "Supervisor assigned successfully",
+    data: { student, supervisor },
+  });
 });
 
 export const getAllProject = asyncHandler(async (req, res, next) => {

@@ -9,7 +9,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 
-// Dashboard Layouts
+// Dashboard Layout
 import DashboardLayout from "./components/layout/DashboardLayout";
 
 // Student Pages
@@ -34,7 +34,7 @@ import AssignSupervisor from "./pages/admin/AssignSupervisor";
 import DeadlinesPage from "./pages/admin/DeadlinesPage";
 import ProjectsPage from "./pages/admin/ProjectsPage";
 
-// ✅ Import your auth actions
+// Redux Actions
 import { getUser, getAllUsers } from "./store/slices/authSlice";
 
 const App = () => {
@@ -85,6 +85,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
+
         {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -95,7 +96,7 @@ const App = () => {
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={["Admin"]}>
-              <DashboardLayout userRole={"Admin"} />
+              <DashboardLayout userRole="Admin" />
             </ProtectedRoute>
           }
         >
@@ -107,24 +108,42 @@ const App = () => {
           <Route path="projects" element={<ProjectsPage />} />
         </Route>
 
+        {/* Student Routes */}
+        <Route
+          path="/student"
+          element={
+            <ProtectedRoute allowedRoles={["Student"]}>
+              <DashboardLayout userRole="Student" />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<StudentDashboard />} />
+          <Route path="submit-proposal" element={<SubmitProposal />} />
+          <Route path="upload-files" element={<UploadFiles />} />
+          <Route path="supervisor" element={<SupervisorPage />} />
+          <Route path="feedback/:projectId" element={<FeedbackPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+        </Route>
 
-{/*Student Routes*/}
-<Route
-  path="/student"
-  element={
-    <ProtectedRoute allowedRoles={["Student"]}>
-      <DashboardLayout userRole="Student" />
-    </ProtectedRoute>
-  }
-/>
-<Route index element={<StudentDashboard />} />
-<Route path="submit-proposal" element={<SubmitProposal />} />
-<Route path="upload-files" element={<UploadFiles />} />
-<Route path="supervisor" element={<SupervisorPage />} />
-<Route path="feedback/:projectId" element={<FeedbackPage />} />
-<Route path="notifications" element={<NotificationsPage  />} />
+        {/* Teacher Routes */}
+        <Route
+          path="/teacher"
+          element={
+            <ProtectedRoute allowedRoles={["Teacher"]}>
+              <DashboardLayout userRole="Teacher" />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<TeacherDashboard />} />
+          <Route path="pending-requests" element={<PendingRequests />} />
+          <Route path="assign-students" element={<AssignedStudents />} />
+          <Route path="files" element={<TeacherFiles />} />
+         
+        </Route>
+
 
       </Routes>
+
       <ToastContainer theme="dark" />
     </BrowserRouter>
   );
