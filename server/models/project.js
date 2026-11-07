@@ -22,11 +22,6 @@ description: {
     type: String,
     required: [true, "Project description is required"],
 },
-title: {
-    type: String,
-    trim: true,
-    maxlength: [200, "Description cannot be more than 200 characters"],
-},
 status: {
     type: String,
     default: "pending",
@@ -72,6 +67,10 @@ message: {
   type: String,
   required: true,
    maxlength: [1000, "Feedback message cannot be more than 1000 characters"],
+},
+createdAt: {
+  type: Date,
+  default: Date.now,
 },
     },
 ],

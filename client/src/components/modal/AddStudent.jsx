@@ -1,6 +1,8 @@
 import { X } from "lucide-react";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { createStudent } from "../../store/slices/adminSlice";
+import { toggleStudentModal } from "../../store/slices/popupSlice";
 
 const AddStudent = () => {
   const dispatch = useDispatch();
@@ -69,11 +71,12 @@ const handleCreateStudent = (e) => {
                   Password
                 </label>
                 <input
-                  type=" Password"
+                  type="password"
                   required
-                  value={formData. Password}
+                  minLength={8}
+                  value={formData.password}
                   onChange={(e) =>
-                    setFormData({ ...formData,  Password: e.target.value })
+                    setFormData({ ...formData, password: e.target.value })
                   }
                   className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
                 />
@@ -113,7 +116,6 @@ const handleCreateStudent = (e) => {
   </button>
   <button
     type="submit"
-    onClick={handleCloseModal}
     className="btn-primary"
   >
     Add Student

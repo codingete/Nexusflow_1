@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "../../lib/axios";
+import { axiosInstance } from "../../lib/axios";
 
 export const getNotifications = createAsyncThunk(
     "notification/getNotifications",

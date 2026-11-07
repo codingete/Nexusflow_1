@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import ErrorHandler from "./error.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,23 +15,11 @@ const ensureDirExists = (dir) => {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let uploadPath;
-
-    if (req.route.path.includes("/upload/projectId")) {
-      uploadPath = path.join(
-        __dirname,
-        "../uploads/projects",
-        req.params.projectId
-      );
-    } else if (req.route.path.includes("/upload/userId")) {
-      uploadPath = path.join(
-        __dirname,
-        "../uploads/users",
-        req.params.userId
-      );
-    } else {
-      uploadPath = path.join(__dirname, "../uploads/temp");
-    }
+    // Only a real ObjectId may become part of the path (no "../" tricks).
+    const projectId = req.params.projectId;
+    const uploadPath = /^[a-f0-9]{24}$/i.test(projectId || "")
+      ? path.join(__dirname, "../uploads/projects", projectId)
+      : path.join(__dirname, "../uploads/temp");
 
     ensureDirExists(uploadPath);
     cb(null, uploadPath);
@@ -89,7 +78,7 @@ const fileExt = path.extname(file.originalname).toLowerCase();
 if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExt)) {
   cb(null, true);
 } else {
-  cb(new Error("Invalid file type. Only PDF, DOC, DOCX, PPT, ZIP, RAR, IMAGES, and code files are allowed."),
+  cb(new ErrorHandler("Invalid file type. Only PDF, DOC, DOCX, PPT, ZIP, RAR, IMAGES, and code files are allowed.", 400),
   false
 );
 }
@@ -110,23 +99,21 @@ const handleUploadError = (err, req, res, next) => {
     if (err.code === "LIMIT_FILE_SIZE") {
       return res.status(400).json({
         success: false,
-        error: "File too large. Maximum size is 10MB",
+        message: "File too large. Maximum size is 10MB",
       });
     }
 
     if (err.code === "LIMIT_FILE_COUNT") {
       return res.status(400).json({
         success: false,
-        error: "Too many files.Maximum 10 files allowed",
+        message: "Too many files. Maximum 10 files allowed",
       });
     }
 
-    if (err.message && err.message.includes("Invalid file type")) {
-  return res.status(400).json({
-    success: false,
-    error: err.message,
-  });
-}
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 next(err);
   

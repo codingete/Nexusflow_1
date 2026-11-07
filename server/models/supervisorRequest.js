@@ -19,7 +19,7 @@ const supervisorRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'Pending',
+    default: 'pending',
     enum:["pending","accepted","rejected"],
   },
 },

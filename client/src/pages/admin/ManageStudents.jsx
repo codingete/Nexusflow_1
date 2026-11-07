@@ -9,10 +9,12 @@ import {
 } from "../../store/slices/adminSlice";
 import { AlertTriangle, CheckCircle, Plus, Users, TriangleAlert, X } from "lucide-react";
 import { toggleStudentModal } from "../../store/slices/popupSlice";
+import { getAllProjects } from "../../store/slices/projectSlice";
 import { LABELS, DEPARTMENT_OPTIONS } from "../../constants/labels";
 
 const ManageStudents = () => {
-  const { users, projects } = useSelector((state) => state.admin);
+  const { users } = useSelector((state) => state.admin);
+  const { projects } = useSelector((state) => state.project);
   const { isCreateStudentModalOpen } = useSelector((state) => state.popup);
 
   const [showModal, setShowModal] = useState(false);
@@ -45,6 +47,7 @@ const ManageStudents = () => {
 
   useEffect(() => {
     dispatch(getAllUsers());
+    dispatch(getAllProjects());
   }, [dispatch]);
 
   const departments = useMemo(() => {
@@ -241,7 +244,6 @@ const ManageStudents = () => {
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {typeof student.supervisor} 
                         <div className="text-sm text-slate-900">
                           {student.department || "-"}
                         </div>

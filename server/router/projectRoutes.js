@@ -9,13 +9,10 @@ import {
   fetchDashboardStats,
 } from "../controllers/projectController.js";
 import { isAuthenticated, isAuthorized } from "../middlewares/authMiddleware.js";
-import { upload } from "../utils/multer.js";
 
 const router = express.Router();
 
 router.post("/", isAuthenticated, isAuthorized("Student"), createProject);
-
-router.get("/:projectId", isAuthenticated, getProject);
 
 router.get(
   "/",
@@ -23,6 +20,16 @@ router.get(
   isAuthorized("Admin", "Teacher"),
   getAllProjects
 );
+
+// Must come before "/:projectId", which would otherwise match it.
+router.get(
+  "/dashboard-stats",
+  isAuthenticated,
+  isAuthorized("Student"),
+  fetchDashboardStats
+);
+
+router.get("/:projectId", isAuthenticated, getProject);
 
 router.put(
   "/:projectId/assign",
@@ -43,13 +50,6 @@ router.post(
   isAuthenticated,
   isAuthorized("Admin", "Teacher"),
   addFeedback
-);
-
-router.get(
-  "/dashboard-stats",
-  isAuthenticated,
-  isAuthorized("Student"),
-  fetchDashboardStats
 );
 
 export default router;

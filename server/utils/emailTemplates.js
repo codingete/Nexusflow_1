@@ -42,3 +42,37 @@ Thank you,<br><strong>FYP System Team</strong>
 </div>
 `;
 }
+
+function wrapTemplate(heading, bodyHtml) {
+return `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
+<div style="text-align: center; margin-bottom: 20px;">
+<h2 style="color: #1d4e16; margin: 0;">FYP SYSTEM - ${heading}</h2>
+</div>
+<p style="font-size: 16px; color: #374151;">Dear Student,</p>
+${bodyHtml}
+<footer style="margin-top: 30px; text-align: center; font-size: 14px; color: #6B7280;">
+Thank you,<br><strong>FYP System Team</strong>
+<p style="font-size: 12px; color: #9CA3AF;">This is an automated message. Please do not reply to this email.</p>
+</footer>
+</div>
+`;
+}
+
+export function generateRequestAcceptTemplate(supervisorName) {
+return wrapTemplate(
+"✅ Supervisor Request Accepted",
+`<p style="font-size: 16px; color: #374151;">
+Good news! <b>${supervisorName}</b> has accepted your supervisor request. You can now log in to the FYP System to continue working on your project.
+</p>`
+);
+}
+
+export function generateRequestRejectedTemplate(supervisorName) {
+return wrapTemplate(
+"❌ Supervisor Request Rejected",
+`<p style="font-size: 16px; color: #374151;">
+Unfortunately, <b>${supervisorName}</b> was unable to accept your supervisor request. Please log in to the FYP System and send a request to another supervisor.
+</p>`
+);
+}

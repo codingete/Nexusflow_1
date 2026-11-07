@@ -6,10 +6,11 @@ import {
   updateTeacher, 
   deleteStudent, 
   deleteTeacher,
-  getDashboardStats
+  getDashboardStats,
+  getAllUsers,
+  assignSupervisor,
 } from "../controllers/adminController.js";
 import { isAuthenticated, isAuthorized } from "../middlewares/authMiddleware.js";
-import { getAllUsers } from "../services/userServices.js";
 
 const router = express.Router();
 
@@ -73,6 +74,5 @@ router.get(
   getDashboardStats
 );
 
-router.get("/users",isAuthenticated,isAuthorized("Admin"),getAllUsers);
 router.post("/assign-supervisor",isAuthenticated,isAuthorized("Admin"),assignSupervisor);
 export default router;

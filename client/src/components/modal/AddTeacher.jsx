@@ -12,15 +12,15 @@ const AddTeacher = () => {
     email: "",
     department: "",
     password: "",
-    expertise:"",
-    maxStudent: 1,
+    expertise: "",
+    maxStudents: 5,
   });
 
   const handleCreateTeacher = (e) => {
     e.preventDefault();
     dispatch(createTeacher(formData));
-    setFormData({ name: "", email: "", department: "", password: "" , expertise:"",
-    maxStudent: 1});
+    setFormData({ name: "", email: "", department: "", password: "", expertise: "",
+    maxStudents: 5 });
     dispatch(toggleTeacherModal());
   };
 
@@ -76,8 +76,9 @@ const AddTeacher = () => {
                 Password
               </label>
               <input
-                type=" Password"
+                type="password"
                 required
+                minLength={8}
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
@@ -98,7 +99,7 @@ const AddTeacher = () => {
                   setFormData({ ...formData, department: e.target.value })
                 }
               >
-               
+                <option value="" disabled>Select Department</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Software Engineering">Software Engineering</option>
                 <option value="Information Technology">Information Technology</option>
@@ -123,6 +124,7 @@ onChange={(e) =>
   setFormData({ ...formData, expertise: e.target.value })
 }
 >
+<option value="" disabled>Select Expertise</option>
 <option value="Artificial Intelligence">Artificial Intelligence</option>
 <option value="Machine Learning">Machine Learning</option>
 <option value="Data Science">Data Science</option>
@@ -140,6 +142,22 @@ onChange={(e) =>
 <option value="Internet of Things (IoT)">Internet of Things (IoT)</option>
 </select>
 </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Max Students
+              </label>
+              <input
+                type="number"
+                required
+                min={1}
+                value={formData.maxStudents}
+                onChange={(e) =>
+                  setFormData({ ...formData, maxStudents: Number(e.target.value) })
+                }
+                className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
+              />
+            </div>
+
             <div className="flex justify-end space-x-3 pt-4">
               <button
                 type="button"

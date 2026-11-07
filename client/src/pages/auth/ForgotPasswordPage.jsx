@@ -125,7 +125,7 @@ return(
   <input
     type="email"
     name="email"
-    value={formData.email}
+    value={email}
     onChange={(e)=>{
     setEmail(e.target.value);
       if(error)setError("");

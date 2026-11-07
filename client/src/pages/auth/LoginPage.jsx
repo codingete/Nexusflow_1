@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { BookOpen, Loader } from "lucide-react";
+import { login } from "../../store/slices/authSlice";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -55,18 +57,19 @@ const handleSubmit = (e) => {
     return;
   }
 
-  const data = new FormData();
-
-  data.append("email", formData.email);
-  data.append("password", formData.password);
-  data.append("role", formData.role);
-
-  dispatch(login(data));
+  // The server only parses JSON / urlencoded bodies, so send a plain object.
+  dispatch(
+    login({
+      email: formData.email,
+      password: formData.password,
+      role: formData.role,
+    })
+  );
 };
 
 useEffect(() => {
   if (authUser) {
-    switch (formData.role) {
+    switch (authUser.role) {
       case "Student":
         navigate("/student");
         break;
@@ -80,7 +83,7 @@ useEffect(() => {
         navigate("/login");
     }
   }
-}, [authUser]);
+}, [authUser, navigate]);
 
 return (
   <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
@@ -139,15 +142,15 @@ return (
 <div>
   <label className="label">Password</label>
   <input
-    type="Password"
-    name="Password"
-    value={formData.Password}
+    type="password"
+    name="password"
+    value={formData.password}
     onChange={handleChange}
-    className={`input ${errors.email ? "input-error" : ""}`}
-    placeholder="Enter your Password"
+    className={`input ${errors.password ? "input-error" : ""}`}
+    placeholder="Enter your password"
   />
-  {errors.Password && (
-    <p className="text-sm text-red-600">{errors.Password}</p>
+  {errors.password && (
+    <p className="text-sm text-red-600">{errors.password}</p>
   )}
 </div>
 

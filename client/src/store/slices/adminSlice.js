@@ -114,13 +114,13 @@ export const getDashboardStats = createAsyncThunk(
 
 export const assignSupervisor = createAsyncThunk(
   "assignSupervisor",
-  async ( data, trunkAPI) => {
+  async ( data, thunkAPI) => {
     try{
       const res =  await axiosInstance.post("/admin/assign-supervisor",data)
-      return res.data.data.stats
+      return res.data.data
     } catch (error){
       toast.error(
-        error.response?.data?.message || "Failed to fetch admin dashboard stats"
+        error.response?.data?.message || "Failed to assign supervisor"
       )
       return thunkAPI.rejectWithValue(error.response?.data?.message)
     }

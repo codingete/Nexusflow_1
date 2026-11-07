@@ -92,9 +92,10 @@ const userSchema = new mongoose.Schema(
 
 
 // Hash password
-userSchema.pre("save", async function (next) {
+// Mongoose 9 no longer passes `next` to pre hooks; returning is enough.
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
   this.password = await bcrypt.hash(this.password, 10);
@@ -116,7 +117,7 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.methods.hasCapacity = async function () {
+userSchema.methods.hasCapacity = function () {
   if(this.role !== "Teacher") return false;
   return this.assignedStudents.length < this.maxStudents;
 };

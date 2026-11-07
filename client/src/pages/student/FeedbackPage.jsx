@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Star, MessageSquare, AlertCircle, Send, FileX } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getProjectFeedback, createFeedback } from "../../store/slices/feedbackSlice";
+import { fetchProject } from "../../store/slices/studentSlice";
 
 const FeedbackPage = () => {
     const { projectId } = useParams();
-    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { list = [], loading } = useSelector((state) => state.feedback);
-    const { project: storeProject } = useSelector((state) => state.student);
+    const { project: storeProject, loading: loadingProject } = useSelector((state) => state.student);
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
     const [comment, setComment] = useState("");
@@ -23,11 +23,25 @@ const FeedbackPage = () => {
         }
     }, [dispatch, activeProjectId]);
 
+    // The project (with supervisor feedback) may not be loaded yet if the
+    // student came straight here.
     useEffect(() => {
-        if (!projectId && storeProject?._id) {
-            dispatch(getProjectFeedback(storeProject._id));
+        if (!storeProject) {
+            dispatch(fetchProject());
         }
-    }, [dispatch, projectId, storeProject]);
+    }, [dispatch, storeProject]);
+
+    const supervisorFeedback = [...(storeProject?.feedback || [])].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    );
+
+    if (!activeProjectId && loadingProject) {
+        return (
+            <div className="flex items-center justify-center py-24">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     if (!activeProjectId) {
         return (
@@ -69,7 +83,28 @@ const FeedbackPage = () => {
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                    <h2 className="text-lg font-semibold text-slate-800">Project Feedback</h2>
+                    <h2 className="text-lg font-semibold text-slate-800">Supervisor Feedback</h2>
+                    <p className="text-sm text-slate-500 mt-1">Comments from your supervisor on your project</p>
+                </div>
+                <div className="p-6 space-y-4">
+                    {supervisorFeedback.length > 0 ? supervisorFeedback.map((f) => (
+                        <div key={f._id} className="border border-slate-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-medium text-slate-800">{f.title}</h3>
+                                <span className="text-sm text-slate-500">{formatDate(f.createdAt)}</span>
+                            </div>
+                            <p className="text-slate-700 leading-relaxed bg-slate-50 rounded-lg p-3">{f.message}</p>
+                            <p className="text-sm text-slate-500 mt-2">- {f.supervisorId?.name || "Supervisor"}</p>
+                        </div>
+                    )) : (
+                        <p className="text-sm text-slate-500">Your supervisor hasn't left any feedback yet.</p>
+                    )}
+                </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h2 className="text-lg font-semibold text-slate-800">Rate Your Project Experience</h2>
                     <p className="text-sm text-slate-500 mt-1">Share your thoughts and help us improve</p>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -105,34 +140,26 @@ const FeedbackPage = () => {
 
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                    <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-slate-500" />Previous Feedback</h2>
+                    <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-slate-500" />Your Previous Ratings</h2>
                 </div>
                 <div className="divide-y divide-slate-100">
                     {(list || []).length > 0 ? (list || []).map((f, i) => (
-                        <div
-                            key={i}
-                            className="border border-slate-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
-                        >
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center space-x-3">
+                        <div key={f._id || i} className="p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
                                     {getFeedbackIcon(f.type)}
+                                    <span className="text-sm font-medium text-slate-700 capitalize">{f.type}</span>
+                                    <span className="flex">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <Star key={star} className={`w-4 h-4 ${star <= f.rating ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+                                        ))}
+                                    </span>
                                 </div>
-
-                                <div className="text-right">
-                                    <p className="text-sm text-slate-600">
-                                        {new Date(f.createdAt).toLocaleDateString()}
-                                    </p>
-                                    <p>{f.supervisorName || "Supervisor"}</p>
+                                <div className="text-right text-sm text-slate-500">
+                                    {formatDate(f.createdAt)} · {f.user?.name || "You"}
                                 </div>
                             </div>
-
-                            <div className="bg-slate-50 rounded-lg mb-3">
-                                <p className="text-slate-700 leading-relaxed">{f.message}</p>
-                            </div>
-
-                            <div className="flex justify-between items-center">
-                                <span className="badge badge-approved">Read</span>
-                            </div>
+                            <p className="text-slate-700 leading-relaxed">{f.comment}</p>
                         </div>
                     )) : (
                         <div className="flex flex-col items-center justify-center py-12 px-4 text-center">

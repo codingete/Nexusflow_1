@@ -3,8 +3,19 @@ import ErrorHandler from "../middlewares/error.js";
 import { User } from "../models/user.js";
 import { Project } from "../models/project.js";
 import { SupervisorRequest } from "../models/supervisorRequest.js";
+import { Notification } from "../models/notification.js";
 import * as userServices from "../services/userServices.js";
 import * as notificationServices from "../services/notificationServices.js";
+
+const pick = (obj, keys) =>
+  Object.fromEntries(keys.filter((k) => obj[k] !== undefined).map((k) => [k, obj[k]]));
+
+const parseExpertise = (expertise) =>
+  Array.isArray(expertise)
+    ? expertise
+    : typeof expertise === "string" && expertise.trim() !== ""
+    ? expertise.split(",").map((s) => s.trim())
+    : [];
 
 
 export const createStudent = asyncHandler(async (req, res, next) => {
@@ -31,8 +42,9 @@ export const createStudent = asyncHandler(async (req, res, next) => {
 
 export const updateStudent = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const updatedData = { ...req.body };
-  delete updatedData.role; 
+  // Only profile fields are editable here; passwords must go through the
+  // hashing save hook, and roles/assignments have their own flows.
+  const updatedData = pick(req.body, ["name", "email", "department"]);
 
   const user = await userServices.updateUser(id, updatedData);
   if (!user) {
@@ -58,6 +70,13 @@ export const deleteStudent = asyncHandler(async (req, res, next) => {
     throw new ErrorHandler("User is not a student", 400);
   }
 
+  // Remove everything that only makes sense with this student around.
+  await Promise.all([
+    User.updateMany({ assignedStudents: id }, { $pull: { assignedStudents: id } }),
+    Project.deleteMany({ student: id }),
+    SupervisorRequest.deleteMany({ student: id }),
+    Notification.deleteMany({ user: id }),
+  ]);
   await userServices.deleteUser(id);
 
   res.status(200).json({
@@ -80,11 +99,7 @@ export const createTeacher = asyncHandler(async (req, res, next) => {
     password,
     department,
     maxStudents,
-    expertise: Array.isArray(expertise)
-      ? expertise
-      : typeof expertise === "string" && expertise.trim() !== ""
-      ? expertise.split(",").map((s) => s.trim())
-      : [],
+    expertise: parseExpertise(expertise),
     role: "Teacher",
   });
 
@@ -97,8 +112,10 @@ export const createTeacher = asyncHandler(async (req, res, next) => {
 
 export const updateTeacher = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const updatedData = { ...req.body };
-  delete updatedData.role; 
+  const updatedData = pick(req.body, ["name", "email", "department", "maxStudents"]);
+  if (req.body.expertise !== undefined) {
+    updatedData.expertise = parseExpertise(req.body.expertise);
+  }
 
   const user = await userServices.updateUser(id, updatedData);
   if (!user) {
@@ -124,6 +141,14 @@ export const deleteTeacher = asyncHandler(async (req, res, next) => {
     throw new ErrorHandler("User is not a teacher", 400);
   }
 
+  // Students and projects go back to "unassigned" rather than pointing at a
+  // teacher who no longer exists.
+  await Promise.all([
+    User.updateMany({ supervisor: id }, { supervisor: null }),
+    Project.updateMany({ supervisor: id }, { supervisor: null }),
+    SupervisorRequest.deleteMany({ supervisor: id }),
+    Notification.deleteMany({ user: id }),
+  ]);
   await userServices.deleteUser(id);
 
   res.status(200).json({
@@ -177,7 +202,7 @@ export const assignSupervisor = asyncHandler(async (req, res, next) => {
   await project.save();
 
  
-  await notificationService.notifyUser(
+  await notificationServices.notifyUser(
     studentId,
     `You have been assigned a supervisor ${supervisor.name}.`,
     "approval",
@@ -185,7 +210,7 @@ export const assignSupervisor = asyncHandler(async (req, res, next) => {
     "low"
   );
 
-  await notificationService.notifyUser(
+  await notificationServices.notifyUser(
     supervisorId,
     `The student ${student.name} has been officially assigned to you for FYP supervision.`,
     "general",
@@ -201,15 +226,12 @@ export const assignSupervisor = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const getAllProject = asyncHandler(async (req, res, next) => {
-
-});
-
 export const getDashboardStats = asyncHandler(async (req, res, next) => {
-  const [totalStudents, totalTeachers, totalProjects, projectStatusStats] = await Promise.all([
+  const [totalStudents, totalTeachers, totalProjects, pendingRequests, projectStatusStats] = await Promise.all([
     User.countDocuments({ role: "Student" }),
     User.countDocuments({ role: "Teacher" }),
     Project.countDocuments(),
+    SupervisorRequest.countDocuments({ status: "pending" }),
     Project.aggregate([
       {
         $group: {
@@ -220,7 +242,9 @@ export const getDashboardStats = asyncHandler(async (req, res, next) => {
     ]),
   ]);
 
-  const pendingProjects = projectStatusStats.find((s) => s._id === "pending")?.count || 0;
+  const countFor = (status) => projectStatusStats.find((s) => s._id === status)?.count || 0;
+  const pendingProjects = countFor("pending");
+  const activeProjects = countFor("approved");
 
   res.status(200).json({
     success: true,
@@ -230,6 +254,8 @@ export const getDashboardStats = asyncHandler(async (req, res, next) => {
         totalTeachers,
         totalProjects,
         pendingProjects,
+        pendingRequests,
+        activeProjects,
         projectStatusStats,
       },
     },

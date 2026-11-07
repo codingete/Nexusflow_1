@@ -244,18 +244,26 @@ const ManageTeachers = () => {
           </div>
         </td>
 
-        <td className="px-6 py-4 whitespace-nowrap">
-{Array.isArray(teacher.expertise)? teacher.expertise.join(", "): teacher.expertise}
-            </td>
-          
-
-        <td className="px-6 py-4">
-          <div className="text-sm text-slate-900">
-            {teacher.createAt ? new Date(teacher.createAt).toLocaleString():"-"}
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+          {teacher.department || "-"}
+          <div className="text-xs text-slate-500">
+            {teacher.assignedStudents?.length || 0}/{teacher.maxStudents ?? "-"} students
           </div>
         </td>
 
-        <td className="px-6 py-4 whitespace -nowrap text-sm font-medium">
+        <td className="px-6 py-4 text-sm text-slate-900">
+          {Array.isArray(teacher.expertise)
+            ? teacher.expertise.join(", ")
+            : teacher.expertise || "-"}
+        </td>
+
+        <td className="px-6 py-4">
+          <div className="text-sm text-slate-900">
+            {teacher.createdAt ? new Date(teacher.createdAt).toLocaleDateString() : "-"}
+          </div>
+        </td>
+
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
           <div className="flex space-x-2">
             <button
               onClick={() => handleEdit(teacher)}
@@ -382,11 +390,10 @@ onChange={(e) =>
   <input
     type="number"
     required
-    max={10}
     min={1}
     value={formData.maxStudents}
     onChange={(e) =>
-      setFormData({ ...formData, maxStudents: e.target.value })
+      setFormData({ ...formData, maxStudents: Number(e.target.value) })
     }
     className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
   />

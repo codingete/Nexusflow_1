@@ -7,7 +7,7 @@ const SubmitProposal = () => {
     title: "",
     description: "",
   });
-  const [ISloading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
@@ -19,10 +19,13 @@ const SubmitProposal = () => {
     e.preventDefault();
     setIsLoading(true);
     try{
-      dispatch(submitProjectProposal(formData));
-      setIsLoading(false);
+      await dispatch(submitProjectProposal(formData)).unwrap();
+      setFormData({ title: "", description: "" });
     }
     catch(error){
+      // error toast is shown by the thunk
+    }
+    finally{
       setIsLoading(false);
     }
   };

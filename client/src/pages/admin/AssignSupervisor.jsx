@@ -5,6 +5,7 @@ import {
   assignSupervisor as assignSupervisorThunk,
   getAllUsers,
 } from "../../store/slices/adminSlice";
+import { getAllProjects } from "../../store/slices/projectSlice";
 import { CheckCircle, AlertTriangle, Users } from "lucide-react";
 
 const Badge = ({ color, children }) => (
@@ -23,12 +24,12 @@ const AssignSupervisor = () => {
   const [selectedSupervisor, setSelectedSupervisor] = useState({});
   const [pendingFor, setPendingFor] = useState(null);
 
-  const { users, projects } = useSelector((state) => state.admin);
+  const { users } = useSelector((state) => state.admin);
+  const { projects } = useSelector((state) => state.project);
 
   useEffect(() => {
-    if (!users || users.length === 0) {
-      dispatch(getAllUsers());
-    }
+    dispatch(getAllUsers());
+    dispatch(getAllProjects());
   }, [dispatch]);
 
   const teachers = useMemo(() => {
@@ -106,14 +107,13 @@ const AssignSupervisor = () => {
 
     if (assignSupervisorThunk.fulfilled.match(res)) {
       toast.success("Supervisor assigned successfully");
+      dispatch(getAllProjects());
       setSelectedSupervisor((prev) => {
         const newState = { ...prev };
         delete newState[projectId];
         return newState;
       });
       dispatch(getAllUsers());
-    } else {
-      toast.error("Failed to assign supervisor");
     }
   };
 

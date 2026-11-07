@@ -16,10 +16,11 @@ import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
 
-config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load server/.env no matter which directory the server is started from.
+config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
@@ -27,7 +28,7 @@ const app = express();
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );

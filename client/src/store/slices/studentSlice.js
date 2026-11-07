@@ -51,7 +51,7 @@ export const fetchSupervisor = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const res = await axiosInstance.get("/student/supervisor");
-      return res.data.data;
+      return res.data.data?.supervisor || null;
     } catch (error) {
       const message = error.response?.data?.message || "Failed to fetch supervisor";
       toast.error(message);
@@ -66,6 +66,8 @@ export const requestSupervisor = createAsyncThunk(
     try {
       const res = await axiosInstance.post("/student/request-supervisor", inputAPI);
       toast.success("Supervisor request sent successfully");
+      // Refresh so the new request shows up with its populated supervisor.
+      thunkAPI.dispatch(fetchMyRequests());
       return res.data.data;
     } catch (error) {
       const message = error.response?.data?.message || "Failed to send supervisor request";
@@ -108,13 +110,27 @@ export const uploadProjectFiles = createAsyncThunk(
   }
 );
 
+export const fetchStudentDashboard = createAsyncThunk(
+  "student/fetchDashboard",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/student/fetch-dashboard-stats");
+      return res.data.data;
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to fetch dashboard";
+      toast.error(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const studentSlice = createSlice({
   name: "student",
   initialState: {
     project: null,
     files: [],
     supervisors: [],
-    dashboardStats: [],
+    dashboardStats: null,
     supervisor: null,
     deadlines: [],
     feedback: [],
@@ -138,6 +154,7 @@ const studentSlice = createSlice({
       .addCase(submitProjectProposal.fulfilled, (state, action) => {
         state.loading = false;
         state.project = action.payload;
+        state.files = [];
       })
       .addCase(submitProjectProposal.rejected, (state) => {
         state.loading = false;
@@ -147,7 +164,18 @@ const studentSlice = createSlice({
       })
       .addCase(fetchProject.fulfilled, (state, action) => {
         state.loading = false;
-        state.project = action.payload;
+        state.project = action.payload || null;
+        state.files = action.payload?.files || [];
+      })
+      .addCase(fetchStudentDashboard.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudentDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dashboardStats = action.payload;
+      })
+      .addCase(fetchStudentDashboard.rejected, (state) => {
+        state.loading = false;
       })
       .addCase(fetchProject.rejected, (state) => {
         state.loading = false;

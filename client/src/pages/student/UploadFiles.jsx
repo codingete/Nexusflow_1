@@ -2,7 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProject, uploadProjectFiles } from "../../store/slices/studentSlice";
 import { toast } from "react-toastify";
-import { File, X, Upload, Loader2, FilePlus } from "lucide-react";
+import { File, X, Upload, Loader2, FilePlus, Download } from "lucide-react";
+import { saveProjectFile } from "../../store/slices/projectSlice";
+
+// Must match the server's limit in middlewares/upload.js.
+const MAX_FILE_MB = 10;
 
 const UploadFiles = () => {
   const dispatch = useDispatch();
@@ -22,8 +26,8 @@ const UploadFiles = () => {
     const newFiles = Array.from(e.target.files);
     
     const validFiles = newFiles.filter((file) => {
-      if (file.size > 50 * 1024 * 1024) {
-        toast.error(`${file.name} is too large (max 50MB)`);
+      if (file.size > MAX_FILE_MB * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max ${MAX_FILE_MB}MB)`);
         return false;
       }
       return true;
@@ -75,12 +79,8 @@ const UploadFiles = () => {
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        toast.success("Files uploaded successfully");
-      } else {
-        toast.error(result.payload || "Failed to upload files");
       }
-    } catch (error) {
-      toast.error("Failed to upload files");
+      // success and error toasts come from the thunk
     } finally {
       setIsUploading(false);
     }
@@ -134,7 +134,7 @@ const UploadFiles = () => {
               Click to select or drag and drop
             </p>
             <p className="text-slate-500 mt-2">
-              PDF, DOC, PPT, ZIP up to 50MB
+              PDF, DOC, PPT, ZIP, images or code, up to {MAX_FILE_MB}MB each
             </p>
           </label>
         </div>
@@ -221,10 +221,27 @@ const UploadFiles = () => {
                       {file.originalName}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {file.filetype || "File"}
+                      {file.uploadedAt
+                        ? new Date(file.uploadedAt).toLocaleString()
+                        : file.filetype || "File"}
                     </p>
                   </div>
                 </div>
+                <button
+                  onClick={() =>
+                    dispatch(
+                      saveProjectFile({
+                        projectId: project._id,
+                        fileId: file._id,
+                        name: file.originalName,
+                      })
+                    )
+                  }
+                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Download
+                </button>
               </div>
             ))}
           </div>

@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
 import app from './app.js';
-
-dotenv.config({ path: './server/.env' });
 
 const PORT = process.env.PORT || 4000;
 

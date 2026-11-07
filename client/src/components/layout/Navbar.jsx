@@ -13,7 +13,7 @@ const dispatch =useDispatch();
 
 const handleLogout =()=>{
 dispatch(logout()).then(() =>{
-  NavigationActivation("/login");
+  navigate("/login");
 });
 };
 

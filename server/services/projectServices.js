@@ -7,6 +7,7 @@ export const getProjectByStudent = async (studentId) => {
 
 export const getProjectByStudentId = async (studentId) => {
   return await Project.findOne({ student: studentId })
+    .sort({ createdAt: -1 })
     .populate("supervisor", "name email")
     .populate("feedback.supervisorId", "name email");
 };

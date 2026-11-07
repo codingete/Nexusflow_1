@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { getDashboardStats } from "../../store/slices/adminSlice";
 import { getNotifications } from "../../store/slices/notificationSlice";
-import { getAllProjects, downloadProjectFile } from "../../store/slices/projectSlice";
+import { getAllProjects, saveProjectFile } from "../../store/slices/projectSlice";
 import { LABELS } from "../../constants/labels";
 import {
   BarChart,
@@ -166,20 +166,8 @@ const AdminDashboard = () => {
     return "bg-slate-100 text-slate-600";
   };
 
-  const handleDownload = async (projectId, fileId, name) => {
-    const res = await dispatch(downloadProjectFile({ projectId, fileId }));
-
-    if (downloadProjectFile.fulfilled.match(res)) {
-      const url = window.URL.createObjectURL(new Blob([res.payload.blob]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", name || "downloaded-file");
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    }
-  };
+  const handleDownload = (projectId, fileId, name) =>
+    dispatch(saveProjectFile({ projectId, fileId, name }));
 
   const reportsData = useMemo(() => {
     return (projects || [])

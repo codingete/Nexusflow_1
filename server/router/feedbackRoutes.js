@@ -1,5 +1,5 @@
 import express from "express";
-import { isAuthenticated } from "../middlewares/auth.js";
+import { isAuthenticated } from "../middlewares/authMiddleware.js";
 import { createFeedback, getProjectFeedback } from "../controllers/feedbackController.js";
 
 const router = express.Router();

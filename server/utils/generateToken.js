@@ -4,7 +4,7 @@ const token = user.generateToken()
 res.status(statusCode)
 . cookie("token", token, {
 expires: new Date(
-    Date.now() + Process.env.COOKIE_EXPIRE*24 *60 *60 *1000
+    Date.now() + process.env.COOKIE_EXPIRE*24 *60 *60 *1000
 ),
 httpOnly:true,
 

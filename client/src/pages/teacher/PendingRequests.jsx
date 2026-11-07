@@ -13,13 +13,9 @@ const PendingRequests = () => {
 
   const dispatch = useDispatch();
   const { list } = useSelector((state) => state.teacher);
-  const authUser = useSelector((state) => state.auth.user);
-
   useEffect(() => {
-    if (authUser?._id) {
-      dispatch(getTeacherRequests(authUser._id));
-    }
-  }, [dispatch, authUser?._id]);
+    dispatch(getTeacherRequests());
+  }, [dispatch]);
 
   const setLoading = (id, key, value) => {
     setLoadingMap((prev) => ({
@@ -33,6 +29,11 @@ const PendingRequests = () => {
     setLoading(id, "accepting", true);
     try {
       await dispatch(acceptRequest(id)).unwrap();
+      // Accepting closes the student's other requests and fills a slot, so
+      // refresh the whole list.
+      dispatch(getTeacherRequests());
+    } catch {
+      // error toast is shown by the thunk
     } finally {
       setLoading(id, "accepting", false);
     }
@@ -43,6 +44,8 @@ const PendingRequests = () => {
     setLoading(id, "rejecting", true);
     try {
       await dispatch(rejectRequest(id)).unwrap();
+    } catch {
+      // error toast is shown by the thunk
     } finally {
       setLoading(id, "rejecting", false);
     }
@@ -53,7 +56,7 @@ const PendingRequests = () => {
       (request?.student?.name || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      (request?.project?.title || "")
+      (request?.latestProject?.title || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -113,7 +116,7 @@ const PendingRequests = () => {
         ) : (
           filteredRequests.map((req) => {
             const id = req._id;
-            const project = req.project;
+            const project = req.latestProject;
             const projectStatus = project?.status?.toLowerCase() || "pending";
             const supervisorAssigned = !!project?.supervisor;
             const canAccept = projectStatus === "approved" && !supervisorAssigned;
@@ -171,6 +174,12 @@ const PendingRequests = () => {
                       {project?.title || "No project title"}
                     </h4>
 
+                    {req.message && (
+                      <p className="text-sm text-slate-600 italic mb-2">
+                        "{req.message}"
+                      </p>
+                    )}
+
                     <p className="text-xs text-slate-500">
                       Submitted:{" "}
                       {req?.createdAt
@@ -214,28 +223,13 @@ const PendingRequests = () => {
                 </button>
               </div>
             )}
-          </div>
-        );
+                </div>
               </div>
             );
           })
         )}
       </div>
 
-
-{/*NO REQUEST*/}
-
-{filteredRequests.length === 0 && (
-  <div className="card text-center py-8">
-    <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-    <h3 className="text-lg font-medium text-slate-800 mb-2">
-      No requests found
-    </h3>
-    <p className="text-slate-600">
-      No supervision requests match your filters.
-    </p>
-  </div>
-)}
 
     </div>
   );

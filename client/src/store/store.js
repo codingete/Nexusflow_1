@@ -5,7 +5,6 @@ import adminReducer from "./slices/adminSlice";
 import deadlineReducer from "./slices/deadlineSlice";
 import notificationReducer from "./slices/notificationSlice";
 import projectReducer from "./slices/projectSlice";
-import requestReducer from "./slices/requestSlice";
 import studentReducer from "./slices/studentSlice";
 import teacherReducer from "./slices/teacherSlice";
 import feedbackReducer from "./slices/feedbackSlice";
@@ -18,10 +17,9 @@ export const store = configureStore({
     deadline: deadlineReducer,
     notification: notificationReducer,
     project: projectReducer,
-    request: requestReducer,
     student: studentReducer,
     teacher: teacherReducer,
     feedback: feedbackReducer,
   },
-  devTools: process.env.NODE_ENV !== "production",
+  devTools: import.meta.env.DEV,
 });

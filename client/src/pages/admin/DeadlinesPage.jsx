@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createDeadline } from "../../store/slices/deadlineSlice";
+import { getAllProjects } from "../../store/slices/projectSlice";
 import { X } from "lucide-react";
 
 const DeadlinesPage = () => {
@@ -16,13 +17,12 @@ const DeadlinesPage = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
-  const { projects } = useSelector((state) => state.admin);
-
-  const [viewProjects, setViewProjects] = useState(projects || []);
+  const { projects } = useSelector((state) => state.project);
+  const viewProjects = projects || [];
 
   useEffect(() => {
-    setViewProjects(projects || []);
-  }, [projects]);
+    dispatch(getAllProjects());
+  }, [dispatch]);
 
   const projectRows = useMemo(() => {
     return viewProjects.map((project) => ({
@@ -44,7 +44,7 @@ const DeadlinesPage = () => {
 
   const filteredProjects = projectRows.filter((row) => {
     return (
-      row.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (row.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.studentName.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
@@ -53,26 +53,19 @@ const DeadlinesPage = () => {
     e.preventDefault();
     if (!selectedProject || !formData.deadlineDate) return;
 
-    let deadlineData = {
-      name: selectedProject?.student?.name,
-      dueDate: formData.deadlineDate, // FIXED
-      project: selectedProject?._id,
+    const deadlineData = {
+      name: `Deadline: ${selectedProject.title}`.slice(0, 100),
+      dueDate: formData.deadlineDate,
     };
 
     try {
-      const updated = await dispatch(
+      await dispatch(
         createDeadline({ id: selectedProject._id, data: deadlineData })
       ).unwrap();
-
-      const updatedProject = updated?.project || updated;
-
-      if (updatedProject?._id) {
-        setViewProjects((prev) =>
-          prev.map((p) =>
-            p._id === updatedProject._id ? { ...p, ...updatedProject } : p
-          )
-        );
-      }
+      // The deadline is also written onto the project, so refresh the table.
+      dispatch(getAllProjects());
+    } catch {
+      // error toast is shown by the thunk
     } finally {
       setShowModal(false);
       setFormData({
@@ -164,7 +157,7 @@ const DeadlinesPage = () => {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded w-full max-w-2xl">
             <div className="flex justify-between mb-4">
               <h2>Create Deadline</h2>
@@ -190,7 +183,7 @@ const DeadlinesPage = () => {
                 <div className="border max-h-40 overflow-y-auto">
                   {projects
                     ?.filter((p) =>
-                      p.title.toLowerCase().includes(query.toLowerCase())
+                      (p.title || "").toLowerCase().includes(query.toLowerCase())
                     )
                     .map((p) => (
                       <div

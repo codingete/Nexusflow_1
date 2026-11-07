@@ -71,23 +71,6 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   }
 });
 
-export const getAllUsers = createAsyncThunk(
-  "auth/getAllUsers",
-  async (_, thunkAPI) => {
-    try {
-      const res = await axiosInstance.get("/admin/users", {
-        credentials: "include",
-      });
-      return res.data.users;
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch users");
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch users"
-      );
-    }
-  }
-);
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -98,7 +81,6 @@ const authSlice = createSlice({
     isUpdatingPassword: false,
     isRequestingForToken: false,
     isCheckingAuth: true,
-    users: [], // ✅ added to store all users
   },
   extraReducers: (builder) => {
     builder
@@ -117,7 +99,7 @@ const authSlice = createSlice({
         state.authUser = null;
       })
       .addCase(getUser.fulfilled, (state, action) => {
-        state.isCheckingAuth = true;
+        state.isCheckingAuth = false;
         state.authUser = action.payload;
       })
       .addCase(getUser.rejected, (state) => {
@@ -125,11 +107,8 @@ const authSlice = createSlice({
         state.authUser = null;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.isCheckingAuth = true;
+        state.isCheckingAuth = false;
         state.authUser = null;
-      })
-      .addCase(logout.rejected, (state) => {
-        state.authUser = state.authUser;
       })
       .addCase(forgotPassword.pending, (state) => {
         state.isRequestingForToken = true;
@@ -149,17 +128,6 @@ const authSlice = createSlice({
       })
       .addCase(resetPassword.rejected, (state) => {
         state.isUpdatingPassword = false;
-      })
-      // ✅ handle getAllUsers
-      .addCase(getAllUsers.pending, (state) => {
-        state.isCheckingAuth = true;
-      })
-      .addCase(getAllUsers.fulfilled, (state, action) => {
-        state.isCheckingAuth = false;
-        state.users = action.payload;
-      })
-      .addCase(getAllUsers.rejected, (state) => {
-        state.isCheckingAuth = false;
       });
   },
 });

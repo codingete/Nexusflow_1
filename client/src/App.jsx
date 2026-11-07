@@ -33,9 +33,10 @@ import ManageTeachers from "./pages/admin/ManageTeachers";
 import AssignSupervisor from "./pages/admin/AssignSupervisor";
 import DeadlinesPage from "./pages/admin/DeadlinesPage";
 import ProjectsPage from "./pages/admin/ProjectsPage";
+import NotFound from "./pages/NotFound";
 
 // Redux Actions
-import { getUser, getAllUsers } from "./store/slices/authSlice";
+import { getUser } from "./store/slices/authSlice";
 
 const App = () => {
   const { authUser, isCheckingAuth } = useSelector((state) => state.auth);
@@ -45,11 +46,13 @@ const App = () => {
     dispatch(getUser());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (authUser?.role === "Admin") {
-      dispatch(getAllUsers());
-    }
-  }, [authUser, dispatch]);
+  const homePath = !authUser
+    ? "/login"
+    : authUser.role === "Admin"
+    ? "/admin"
+    : authUser.role === "Teacher"
+    ? "/teacher"
+    : "/student";
 
   const ProtectedRoute = ({ children, allowedRoles }) => {
     if (!authUser) {
@@ -102,7 +105,7 @@ const App = () => {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="students" element={<ManageStudents />} />
-          <Route path="teacher" element={<ManageTeachers />} />
+          <Route path="teachers" element={<ManageTeachers />} />
           <Route path="assign-supervisor" element={<AssignSupervisor />} />
           <Route path="deadlines" element={<DeadlinesPage />} />
           <Route path="projects" element={<ProjectsPage />} />
@@ -121,6 +124,7 @@ const App = () => {
           <Route path="submit-proposal" element={<SubmitProposal />} />
           <Route path="upload-files" element={<UploadFiles />} />
           <Route path="supervisor" element={<SupervisorPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
           <Route path="feedback/:projectId" element={<FeedbackPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>
@@ -136,12 +140,13 @@ const App = () => {
         >
           <Route index element={<TeacherDashboard />} />
           <Route path="pending-requests" element={<PendingRequests />} />
-          <Route path="assign-students" element={<AssignedStudents />} />
+          <Route path="assigned-students" element={<AssignedStudents />} />
           <Route path="files" element={<TeacherFiles />} />
          
         </Route>
 
-
+        <Route path="/" element={<Navigate to={homePath} replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <ToastContainer theme="dark" />

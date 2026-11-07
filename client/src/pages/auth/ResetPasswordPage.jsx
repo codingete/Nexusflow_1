@@ -5,11 +5,11 @@ import {KeyRound ,Loader} from "lucide-react";
 import { resetPassword } from "../../store/slices/authSlice";
 
 const ResetPasswordPage = () => {
-const[formData,setFromData]=useState({
+const[formData,setFormData]=useState({
 password:"",
 confirmPassword:"",
 })
-const[errors,serErrors]=useState({});
+const[errors,setErrors]=useState({});
 const[searchParams]=useSearchParams();
 const navigate=useNavigate();
 
@@ -107,15 +107,15 @@ general:error||"Failed to reset password. Please try again.",
 <div>
   <label className="label">Confirm Password</label>
   <input
-    type="Password"
-    name="ConfirmPassword"
+    type="password"
+    name="confirmPassword"
     value={formData.confirmPassword}
     onChange={handleChange}
-    className={`input ${errors.email ? "input-error" : ""}`}
-    placeholder="Enter your confirm password"
+    className={`input ${errors.confirmPassword ? "input-error" : ""}`}
+    placeholder="Confirm your new password"
   />
   {errors.confirmPassword && (
-    <p className="text-sm text-red-600">{errors.Password}</p>
+    <p className="text-sm text-red-600">{errors.confirmPassword}</p>
   )}
 </div>
 {/* Submit Button */}
