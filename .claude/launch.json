@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "server",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "server", "run", "dev"],
-      "port": 4000
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--watch", "server/server.js"],
+      "port": 4000,
+      "autoPort": false
     },
     {
       "name": "client",
