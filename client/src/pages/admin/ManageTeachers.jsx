@@ -5,6 +5,7 @@ import {
   deleteTeacher,
   getAllUsers,
   updateTeacher,
+  setUserPassword,
 } from "../../store/slices/adminSlice";
 import {
   BadgeCheck,
@@ -78,8 +79,12 @@ const ManageTeachers = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { newPassword, ...profile } = formData;
     if (editingTeacher) {
-      dispatch(updateTeacher({ id: editingTeacher._id, data: formData }));
+      dispatch(updateTeacher({ id: editingTeacher._id, data: profile }));
+      if (newPassword) {
+        dispatch(setUserPassword({ id: editingTeacher._id, password: newPassword }));
+      }
     }
     handleCloseModal();
   };
@@ -398,6 +403,23 @@ onChange={(e) =>
     className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
   />
 </div>
+<div>
+  <label className="block text-sm font-medium text-slate-700 mb-1">
+    New password <span className="text-slate-400 font-normal">(optional)</span>
+  </label>
+  <input
+    type="password"
+    minLength={8}
+    autoComplete="new-password"
+    placeholder="Leave blank to keep the current password"
+    value={formData.newPassword || ""}
+    onChange={(e) =>
+      setFormData({ ...formData, newPassword: e.target.value })
+    }
+    className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
+  />
+</div>
+
 <div className="flex justify-end space-x-3 pt-4">
   <button
     type="button"

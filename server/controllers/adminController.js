@@ -158,6 +158,41 @@ export const deleteTeacher = asyncHandler(async (req, res, next) => {
 });
 
 
+// Lets an admin give a student or teacher a new password (e.g. a forgotten
+// one, or the first login). Goes through save() so the password is hashed.
+export const setUserPassword = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  if (!password || password.length < 8) {
+    return next(new ErrorHandler("Password must be at least 8 characters", 400));
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+  if (!["Student", "Teacher"].includes(user.role)) {
+    return next(new ErrorHandler("Only student and teacher passwords can be set here", 400));
+  }
+
+  user.password = password;
+  await user.save();
+
+  await notificationServices.notifyUser(
+    user._id,
+    "Your password was changed by an administrator.",
+    "system",
+    null,
+    "high"
+  );
+
+  res.status(200).json({
+    success: true,
+    message: `Password updated for ${user.name}`,
+  });
+});
+
 export const getAllUsers = asyncHandler(async (req, res, next) => {
   const users = await userServices.getAllUsers();
   res.status(200).json({

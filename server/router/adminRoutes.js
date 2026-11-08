@@ -9,6 +9,7 @@ import {
   getDashboardStats,
   getAllUsers,
   assignSupervisor,
+  setUserPassword,
 } from "../controllers/adminController.js";
 import { isAuthenticated, isAuthorized } from "../middlewares/authMiddleware.js";
 
@@ -74,5 +75,6 @@ router.get(
   getDashboardStats
 );
 
+router.put("/users/:id/password",isAuthenticated,isAuthorized("Admin"),setUserPassword);
 router.post("/assign-supervisor",isAuthenticated,isAuthorized("Admin"),assignSupervisor);
 export default router;

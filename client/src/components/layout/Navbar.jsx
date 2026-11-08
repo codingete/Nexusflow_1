@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import{logout} from "../../store/slices/authSlice";
+import ChangePassword from "../modal/ChangePassword";
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const { authUser } = useSelector((state) => state.auth);
 
 const navigate= useNavigate();
@@ -143,7 +145,16 @@ dispatch(logout()).then(() =>{
                       </p>
                     </div>
                     <button
-                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md mt-2"
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md mt-2"
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        setChangePasswordOpen(true);
+                      }}
+                    >
+                      Change password
+                    </button>
+                    <button
+                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
                       onClick={handleLogout}
                     >
                       Sign out
@@ -165,6 +176,9 @@ dispatch(logout()).then(() =>{
             setNotificationsOpen(false);
           }}
         />
+      )}
+      {changePasswordOpen && (
+        <ChangePassword onClose={() => setChangePasswordOpen(false)} />
       )}
     </nav>
   );

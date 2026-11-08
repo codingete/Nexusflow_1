@@ -71,6 +71,25 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   }
 });
 
+export const updatePassword = createAsyncThunk(
+  "auth/password/update",
+  async ({ currentPassword, newPassword, confirmPassword }, thunkAPI) => {
+    try {
+      const res = await axiosInstance.put("/auth/password/update", {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+      toast.success(res.data.message || "Password updated");
+      return null;
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to update password";
+      toast.error(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -127,6 +146,15 @@ const authSlice = createSlice({
         state.authUser = action.payload;
       })
       .addCase(resetPassword.rejected, (state) => {
+        state.isUpdatingPassword = false;
+      })
+      .addCase(updatePassword.pending, (state) => {
+        state.isUpdatingPassword = true;
+      })
+      .addCase(updatePassword.fulfilled, (state) => {
+        state.isUpdatingPassword = false;
+      })
+      .addCase(updatePassword.rejected, (state) => {
         state.isUpdatingPassword = false;
       });
   },

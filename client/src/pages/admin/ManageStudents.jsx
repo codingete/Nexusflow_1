@@ -6,6 +6,7 @@ import {
   deleteStudent,
   getAllUsers,
   updateStudent,
+  setUserPassword,
 } from "../../store/slices/adminSlice";
 import { AlertTriangle, CheckCircle, Plus, Users, TriangleAlert, X } from "lucide-react";
 import { toggleStudentModal } from "../../store/slices/popupSlice";
@@ -78,10 +79,14 @@ const ManageStudents = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { newPassword, ...profile } = formData;
     if (editingStudent) {
-      dispatch(updateStudent({ id: editingStudent._id, data: formData }));
+      dispatch(updateStudent({ id: editingStudent._id, data: profile }));
+      if (newPassword) {
+        dispatch(setUserPassword({ id: editingStudent._id, password: newPassword }));
+      }
     } else {
-      dispatch(createStudent(formData));
+      dispatch(createStudent(profile));
     }
     handleCloseModal();
   };
@@ -365,6 +370,23 @@ const ManageStudents = () => {
    <option key={dept} value={dept}>{dept}</option>
  ))}
   </select>
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-slate-700 mb-1">
+    New password <span className="text-slate-400 font-normal">(optional)</span>
+  </label>
+  <input
+    type="password"
+    minLength={8}
+    autoComplete="new-password"
+    placeholder="Leave blank to keep the current password"
+    value={formData.newPassword || ""}
+    onChange={(e) =>
+      setFormData({ ...formData, newPassword: e.target.value })
+    }
+    className="input-field w-full py-1 border-b border-slate-600 focus:outline-none"
+  />
 </div>
 
 <div className="flex justify-end space-x-3 pt-4">

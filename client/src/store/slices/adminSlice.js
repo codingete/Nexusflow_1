@@ -127,6 +127,22 @@ export const assignSupervisor = createAsyncThunk(
   }
 )
 
+// Admin sets a new password for a student or teacher.
+export const setUserPassword = createAsyncThunk(
+  "admin/setUserPassword",
+  async ({ id, password }, thunkAPI) => {
+    try {
+      const res = await axiosInstance.put(`/admin/users/${id}/password`, { password });
+      toast.success(res.data.message || "Password updated");
+      return id;
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to update password";
+      toast.error(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
